@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Resumo de Ponto - SEED</title>
+    <!-- Tailwind CSS para um design moderno e limpo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS (xlsx) para manipulação de arquivos Excel no navegador -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-emerald-700 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/10 p-2.5 rounded-lg">
+                    <i class="fa-solid fa-file-excel text-2xl text-emerald-200"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">Gerador de Resumo de Ponto</h1>
+                    <p class="text-xs text-emerald-100">Preenchimento automatizado de planilhas modelo para secretarias escolares</p>
+                </div>
+            </div>
+            <div class="mt-3 md:mt-0 text-xs bg-emerald-800/60 px-3 py-1.5 rounded-full border border-emerald-600">
+                <i class="fa-solid fa-circle-check text-emerald-400 mr-1.5"></i> Versão para Gestão Escolar
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full space-y-6">
+
+        <!-- Passo 1: Carregar Modelo -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                <h2 class="text-lg font-semibold text-slate-700 flex items-center">
+                    <span class="bg-emerald-100 text-emerald-800 w-7 h-7 rounded-full inline-flex items-center justify-center text-sm font-bold mr-2.5">1</span>
+                    Carregar Planilha Modelo (.xlsx)
+                </h2>
+                <span id="model-status" class="text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> Nenhum modelo carregado
+                </span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                <div class="md:col-span-2">
+                    <p class="text-sm text-slate-600 mb-3">
+                        Selecione o arquivo Excel oficial da secretaria (.xlsx) que serve como padrão. O sistema preservará todas as fórmulas, cabeçalhos, bordas e formatações originais.
+                    </p>
+                    <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-6 cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/30 transition-all group">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 group-hover:text-emerald-600 mb-2 transition-colors"></i>
+                            <p class="text-sm text-slate-600 font-medium mb-1"><span class="text-emerald-600 font-semibold">Clique para escolher</span> ou arraste o arquivo</p>
+                            <p class="text-xs text-slate-400">Apenas arquivos Excel (.xlsx)</p>
+                        </div>
+                        <input type="file" id="model-file" accept=".xlsx" class="hidden" />
+                    </label>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs space-y-2">
+                    <p class="font-semibold text-slate-700"><i class="fa-solid fa-circle-info text-emerald-600 mr-1"></i> Dica de Configuração:</p>
+                    <p class="text-slate-600">Informe abaixo em qual linha começam os nomes dos servidores e qual coluna contém os nomes e as frequências.</p>
+                    <div class="pt-2 grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-medium text-slate-600 mb-1">Linha Inicial:</label>
+                            <input type="number" id="start-row" value="8" min="1" class="w-full border border-slate-300 rounded px-2 py-1 text-center bg-white" title="Linha onde começa a lista de nomes">
+                        </div>
+                        <div>
+                            <label class="block font-medium text-slate-600 mb-1">Coluna Nome:</label>
+                            <input type="text" id="name-col" value="B" class="w-full border border-slate-300 rounded px-2 py-1 text-center uppercase bg-white" title="Letra da coluna de nomes (ex: A, B, C)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Passo 2: Inserir Servidores e Frequências -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-100 mb-4 gap-3">
+                <h2 class="text-lg font-semibold text-slate-700 flex items-center">
+                    <span class="bg-emerald-100 text-emerald-800 w-7 h-7 rounded-full inline-flex items-center justify-center text-sm font-bold mr-2.5">2</span>
+                    Lista de Servidores e Dados de Frequência
+                </h2>
+                <div class="flex space-x-2">
+                    <button type="button" id="btn-add-row" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium px-3 py-2 rounded-lg transition shadow-sm flex items-center">
+                        <i class="fa-solid fa-plus mr-1.5"></i> Adicionar Servidor
+                    </button>
+                    <button type="button" id="btn-clear" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-medium px-3 py-2 rounded-lg transition">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Limpar Lista
+                    </button>
+                </div>
+            </div>
+
+            <p class="text-sm text-slate-600 mb-4">
+                Insira os nomes dos servidores e marque as faltas (F), presenças (P) ou dias trabalhados. Você também pode colar uma lista de nomes direto na tabela.
+            </p>
+
+            <div class="overflow-x-auto border border-slate-200 rounded-lg max-h-[450px]">
+                <table id="staff-table" class="w-full text-left border-collapse text-sm">
+                    <thead class="bg-slate-100 sticky top-0 text-slate-700 font-semibold text-xs uppercase tracking-wider border-b border-slate-200">
+                        <tr>
+                            <th class="p-3 w-12 text-center">#</th>
+                            <th class="p-3 min-w-[250px]">Nome Completo do Servidor</th>
+                            <th class="p-3 w-32 text-center">Dias / Faltas / Obs</th>
+                            <th class="p-3 w-16 text-center">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staff-tbody" class="divide-y divide-slate-100 bg-white">
+                        <!-- Linhas dinâmicas inseridas via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Passo 3: Gerar Planilha -->
+        <section class="bg-gradient-to-r from-emerald-800 to-teal-800 rounded-xl shadow-md p-6 text-white flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <h3 class="text-lg font-bold">Tudo pronto para gerar o resumo?</h3>
+                <p class="text-emerald-100 text-sm">O sistema vai injetar os dados na planilha modelo preservando a estrutura exata e gerar o arquivo final para download.</p>
+            </div>
+            <button type="button" id="btn-generate" disabled class="bg-emerald-500 opacity-50 cursor-not-allowed hover:bg-emerald-400 text-white font-bold px-6 py-3 rounded-lg shadow-lg transition flex items-center space-x-2 whitespace-nowrap">
+                <i class="fa-solid fa-file-arrow-down text-lg"></i>
+                <span>Gerar e Baixar Planilha</span>
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-xs text-slate-400">
+        Gerador de Resumo de Ponto &bull; Desenvolvido para Secretarias Municipais de Educação
+    </footer>
+
+    <!-- Script de Lógica -->
+    <script>
+        let workbookData = null; // Armazena o workbook carregado
+        let loadedFileName = '';
+
+        const modelFileInput = document.getElementById('model-file');
+        const modelStatus = document.getElementById('model-status');
+        const staffTbody = document.getElementById('staff-tbody');
+        const btnAddRow = document.getElementById('btn-add-row');
+        const btnClear = document.getElementById('btn-clear');
+        const btnGenerate = document.getElementById('btn-generate');
+        const startRowInput = document.getElementById('start-row');
+        const nameColInput = document.getElementById('name-col');
+
+        // Adicionar linhas iniciais de exemplo
+        function initTable() {
+            staffTbody.innerHTML = '';
+            // Adicionar 5 linhas padrão para facilitar
+            for (let i = 0; i < 5; i++) {
+                addStaffRow();
+            }
+            updateRowNumbers();
+            checkGenerateButton();
+        }
+
+        function addStaffRow(name = '', detail = '') {
+            const rowCount = staffTbody.rows.length + 1;
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-slate-50/80 transition';
+            tr.innerHTML = `
+                <td class="p-3 text-center text-slate-400 font-medium row-num">${rowCount}</td>
+                <td class="p-2">
+                    <input type="text" value="${name}" placeholder="Ex: Maria da Silva Santos" class="staff-name w-full border border-slate-200 rounded px-3 py-1.5 text-slate-700 focus:outline-none focus:border-emerald-500 bg-white">
+                </td>
+                <td class="p-2">
+                    <input type="text" value="${detail}" placeholder="Ex: 0 Faltas" class="staff-detail w-full border border-slate-200 rounded px-3 py-1.5 text-center text-slate-700 focus:outline-none focus:border-emerald-500 bg-white">
+                </td>
+                <td class="p-2 text-center">
+                    <button type="button" class="btn-del text-slate-400 hover:text-red-500 p-1.5 rounded transition" title="Remover linha">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            `;
+
+            tr.querySelector('.btn-del').addEventListener('click', () => {
+                if (staffTbody.rows.length > 1) {
+                    tr.remove();
+                    updateRowNumbers();
+                } else {
+                    alert('A tabela precisa ter ao menos uma linha.');
+                }
+            });
+
+            staffTbody.appendChild(tr);
+            updateRowNumbers();
+        }
+
+        function updateRowNumbers() {
+            const rows = staffTbody.querySelectorAll('tr');
+            rows.forEach((row, index) => {
+                row.querySelector('.row-num').textContent = index + 1;
+            });
+        }
+
+        btnAddRow.addEventListener('click', () => addStaffRow());
+
+        btnClear.addEventListener('click', () => {
+            if (confirm('Deseja limpar todos os nomes da tabela?')) {
+                staffTbody.innerHTML = '';
+                addStaffRow();
+            }
+        });
+
+        // Carregar arquivo modelo Excel
+        modelFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            loadedFileName = file.name;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    workbookData = XLSX.read(data, { type: 'array', cellStyles: true, cellDates: true });
+                    
+                    modelStatus.className = 'text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200';
+                    modelStatus.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Modelo carregado: <b>${file.name}</b>`;
+                    checkGenerateButton();
+                } catch (err) {
+                    alert('Erro ao ler o arquivo Excel. Certifique-se de que é um arquivo .xlsx válido.');
+                    console.error(err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function checkGenerateButton() {
+            if (workbookData) {
+                btnGenerate.disabled = false;
+                btnGenerate.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnGenerate.disabled = true;
+                btnGenerate.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // Converter letra da coluna (ex: A, B, Z) para índice numérico (0-based)
+        function colLetterToIndex(letter) {
+            let column = 0;
+            letter = letter.toUpperCase();
+            for (let i = 0; i < letter.length; i++) {
+                column += (letter.charCodeAt(i) - 64) * Math.pow(26, letter.length - i - 1);
+            }
+            return column - 1;
+        }
+
+        // Gerar planilha preenchida
+        btnGenerate.addEventListener('click', () => {
+            if (!workbookData) {
+                alert('Por favor, carregue a planilha modelo primeiro.');
+                return;
+            }
+
+            // Pegar dados da tabela
+            const rows = staffTbody.querySelectorAll('tr');
+            const staffList = [];
+            rows.forEach(tr => {
+                const name = tr.querySelector('.staff-name').value.trim();
+                const detail = tr.querySelector('.staff-detail').value.trim();
+                if (name) {
+                    staffList.push({ name, detail });
+                }
+            });
+
+            if (staffList.length === 0) {
+                alert('Adicione pelo menos um servidor com nome preenchido.');
+                return;
+            }
+
+            try {
+                // Clonar workbook para não corromper o original em memória
+                // Usamos XLSX.write / read para fazer um clone seguro
+                const wbout = XLSX.write(workbookData, { bookType: 'xlsx', type: 'array' });
+                const workBookClone = XLSX.read(wbout, { type: 'array' });
+
+                // Pegar a primeira aba da planilha
+                const firstSheetName = workBookClone.SheetNames[0];
+                const worksheet = workBookClone.Sheets[firstSheetName];
+
+                const startRow = parseInt(startRowInput.value) || 8;
+                const nameColStr = nameColInput.value.trim() || 'B';
+                const nameColIdx = colLetterToIndex(nameColStr);
+                
+                // Coluna de detalhe/frequência (vamos colocar na coluna seguinte por padrão, ex: C ou D)
+                // Se a coluna de nome for B, podemos colocar na C ou em outra coluna se preferir
+                const detailColIdx = nameColIdx + 1; 
+
+                // Preencher dados linha por linha
+                staffList.forEach((staff, index) => {
+                    const currentRow = startRow + index;
+                    
+                    // Célula do Nome
+                    const nameCellRef = XLSX.utils.encode_cell({ r: currentRow - 1, c: nameColIdx });
+                    if (!worksheet[nameCellRef]) {
+                        worksheet[nameCellRef] = { t: 's', v: '' };
+                    }
+                    worksheet[nameCellRef].v = staff.name;
+                    worksheet[nameCellRef].t = 's';
+
+                    // Célula de Frequência/Detalhe (se houver preenchimento)
+                    if (staff.detail) {
+                        const detailCellRef = XLSX.utils.encode_cell({ r: currentRow - 1, c: detailColIdx });
+                        if (!worksheet[detailCellRef]) {
+                            worksheet[detailCellRef] = { t: 's', v: '' };
+                        }
+                        worksheet[detailCellRef].v = staff.detail;
+                        worksheet[detailCellRef].t = 's';
+                    }
+                });
+
+                // Atualizar o intervalo da planilha (!ref) se necessário para garantir que abranja as novas linhas
+                // O SheetJS gerencia bem se já houver bounds definidos
+
+                // Salvar o arquivo
+                const outputFileName = `Resumo_Ponto_Preenchido_${loadedFileName}`;
+                XLSX.writeFile(workBookClone, outputFileName);
+
+            } catch (err) {
+                alert('Ocorreu um erro ao gerar a planilha preenchida.');
+                console.error(err);
+            }
+        });
+
+        // Inicializar tabela ao carregar
+        initTable();
+    </script>
+</body>
+</html>
