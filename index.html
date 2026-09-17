@@ -22,11 +22,11 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-wide">Gerador de Resumo de Ponto</h1>
-                    <p class="text-xs text-emerald-100">Preenchimento automatizado de planilhas modelo para secretarias escolares</p>
+                    <p class="text-xs text-emerald-100">Preenchimento automatizado de planilhas modelo oficiais</p>
                 </div>
             </div>
             <div class="mt-3 md:mt-0 text-xs bg-emerald-800/60 px-3 py-1.5 rounded-full border border-emerald-600">
-                <i class="fa-solid fa-circle-check text-emerald-400 mr-1.5"></i> Versão para Gestão Escolar
+                <i class="fa-solid fa-circle-check text-emerald-400 mr-1.5"></i> Modelo Carregado Automaticamente do GitHub
             </div>
         </div>
     </header>
@@ -34,44 +34,27 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full space-y-6">
 
-        <!-- Passo 1: Carregar Modelo -->
+        <!-- Status do Modelo e Configuração -->
         <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
-                <h2 class="text-lg font-semibold text-slate-700 flex items-center">
-                    <span class="bg-emerald-100 text-emerald-800 w-7 h-7 rounded-full inline-flex items-center justify-center text-sm font-bold mr-2.5">1</span>
-                    Carregar Planilha Modelo (.xlsx)
-                </h2>
-                <span id="model-status" class="text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
-                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> Nenhum modelo carregado
-                </span>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                <div class="md:col-span-2">
-                    <p class="text-sm text-slate-600 mb-3">
-                        Selecione o arquivo Excel oficial da secretaria (.xlsx) que serve como padrão. O sistema preservará todas as fórmulas, cabeçalhos, bordas e formatações originais.
-                    </p>
-                    <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-6 cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/30 transition-all group">
-                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 group-hover:text-emerald-600 mb-2 transition-colors"></i>
-                            <p class="text-sm text-slate-600 font-medium mb-1"><span class="text-emerald-600 font-semibold">Clique para escolher</span> ou arraste o arquivo</p>
-                            <p class="text-xs text-slate-400">Apenas arquivos Excel (.xlsx)</p>
-                        </div>
-                        <input type="file" id="model-file" accept=".xlsx" class="hidden" />
-                    </label>
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <div id="model-status-icon" class="bg-amber-100 text-amber-700 w-10 h-10 rounded-lg flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-700">Status da Planilha Modelo Oficial</h2>
+                        <p id="model-status-text" class="text-xs text-slate-500">Baixando o modelo atualizado do repositório...</p>
+                    </div>
                 </div>
-                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs space-y-2">
-                    <p class="font-semibold text-slate-700"><i class="fa-solid fa-circle-info text-emerald-600 mr-1"></i> Dica de Configuração:</p>
-                    <p class="text-slate-600">Informe abaixo em qual linha começam os nomes dos servidores e qual coluna contém os nomes e as frequências.</p>
-                    <div class="pt-2 grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">Linha Inicial:</label>
-                            <input type="number" id="start-row" value="8" min="1" class="w-full border border-slate-300 rounded px-2 py-1 text-center bg-white" title="Linha onde começa a lista de nomes">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">Coluna Nome:</label>
-                            <input type="text" id="name-col" value="B" class="w-full border border-slate-300 rounded px-2 py-1 text-center uppercase bg-white" title="Letra da coluna de nomes (ex: A, B, C)">
-                        </div>
+
+                <div class="flex items-center space-x-4 bg-slate-50 px-4 py-2.5 rounded-lg border border-slate-200 text-xs">
+                    <div>
+                        <label class="block font-medium text-slate-600 mb-1">Linha Inicial:</label>
+                        <input type="number" id="start-row" value="8" min="1" class="w-16 border border-slate-300 rounded px-2 py-1 text-center bg-white font-medium">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-600 mb-1">Coluna Nome:</label>
+                        <input type="text" id="name-col" value="B" class="w-16 border border-slate-300 rounded px-2 py-1 text-center uppercase bg-white font-medium">
                     </div>
                 </div>
             </div>
@@ -81,7 +64,7 @@
         <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-100 mb-4 gap-3">
                 <h2 class="text-lg font-semibold text-slate-700 flex items-center">
-                    <span class="bg-emerald-100 text-emerald-800 w-7 h-7 rounded-full inline-flex items-center justify-center text-sm font-bold mr-2.5">2</span>
+                    <span class="bg-emerald-100 text-emerald-800 w-7 h-7 rounded-full inline-flex items-center justify-center text-sm font-bold mr-2.5">1</span>
                     Lista de Servidores e Dados de Frequência
                 </h2>
                 <div class="flex space-x-2">
@@ -95,7 +78,7 @@
             </div>
 
             <p class="text-sm text-slate-600 mb-4">
-                Insira os nomes dos servidores e marque as faltas (F), presenças (P) ou dias trabalhados. Você também pode colar uma lista de nomes direto na tabela.
+                Insira os nomes dos servidores e marque as faltas (F), presenças (P) ou dias trabalhados.
             </p>
 
             <div class="overflow-x-auto border border-slate-200 rounded-lg max-h-[450px]">
@@ -109,7 +92,7 @@
                         </tr>
                     </thead>
                     <tbody id="staff-tbody" class="divide-y divide-slate-100 bg-white">
-                        <!-- Linhas dinâmicas inseridas via JS -->
+                        <!-- Linhas dinâmicas -->
                     </tbody>
                 </table>
             </div>
@@ -119,7 +102,7 @@
         <section class="bg-gradient-to-r from-emerald-800 to-teal-800 rounded-xl shadow-md p-6 text-white flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
                 <h3 class="text-lg font-bold">Tudo pronto para gerar o resumo?</h3>
-                <p class="text-emerald-100 text-sm">O sistema vai injetar os dados na planilha modelo preservando a estrutura exata e gerar o arquivo final para download.</p>
+                <p class="text-emerald-100 text-sm">O sistema vai injetar os dados no modelo oficial do GitHub e baixar a planilha pronta.</p>
             </div>
             <button type="button" id="btn-generate" disabled class="bg-emerald-500 opacity-50 cursor-not-allowed hover:bg-emerald-400 text-white font-bold px-6 py-3 rounded-lg shadow-lg transition flex items-center space-x-2 whitespace-nowrap">
                 <i class="fa-solid fa-file-arrow-down text-lg"></i>
@@ -136,11 +119,11 @@
 
     <!-- Script de Lógica -->
     <script>
-        let workbookData = null; // Armazena o workbook carregado
-        let loadedFileName = '';
+        let workbookData = null; 
+        const modelFileName = "RESUMO DE FREQÜÊNCIA - AGO SET.xlsx"; // Nome do arquivo modelo no seu repositório
 
-        const modelFileInput = document.getElementById('model-file');
-        const modelStatus = document.getElementById('model-status');
+        const modelStatusIcon = document.getElementById('model-status-icon');
+        const modelStatusText = document.getElementById('model-status-text');
         const staffTbody = document.getElementById('staff-tbody');
         const btnAddRow = document.getElementById('btn-add-row');
         const btnClear = document.getElementById('btn-clear');
@@ -148,10 +131,31 @@
         const startRowInput = document.getElementById('start-row');
         const nameColInput = document.getElementById('name-col');
 
-        // Adicionar linhas iniciais de exemplo
+        // Baixar automaticamente o modelo do GitHub ao abrir a página
+        async function loadModelFromGitHub() {
+            try {
+                // Como o arquivo está no mesmo repositório do GitHub Pages, podemos buscá-lo diretamente pelo nome
+                const response = await fetch(modelFileName);
+                if (!response.ok) throw new Error('Não foi possível carregar o arquivo modelo do repositório.');
+                
+                const arrayBuffer = await response.arrayBuffer();
+                workbookData = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array', cellStyles: true, cellDates: true });
+
+                modelStatusIcon.className = "bg-emerald-100 text-emerald-700 w-10 h-10 rounded-lg flex items-center justify-center text-lg";
+                modelStatusIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                modelStatusText.innerHTML = `Modelo oficial carregado com sucesso: <b>${modelFileName}</b>`;
+                
+                checkGenerateButton();
+            } catch (err) {
+                modelStatusIcon.className = "bg-red-100 text-red-700 w-10 h-10 rounded-lg flex items-center justify-center text-lg";
+                modelStatusIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                modelStatusText.innerHTML = `Erro ao carregar o modelo. Verifique se o arquivo <b>${modelFileName}</b> está na raiz do repositório.`;
+                console.error(err);
+            }
+        }
+
         function initTable() {
             staffTbody.innerHTML = '';
-            // Adicionar 5 linhas padrão para facilitar
             for (let i = 0; i < 5; i++) {
                 addStaffRow();
             }
@@ -207,29 +211,6 @@
             }
         });
 
-        // Carregar arquivo modelo Excel
-        modelFileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            loadedFileName = file.name;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const data = new Uint8Array(evt.target.result);
-                    workbookData = XLSX.read(data, { type: 'array', cellStyles: true, cellDates: true });
-                    
-                    modelStatus.className = 'text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200';
-                    modelStatus.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Modelo carregado: <b>${file.name}</b>`;
-                    checkGenerateButton();
-                } catch (err) {
-                    alert('Erro ao ler o arquivo Excel. Certifique-se de que é um arquivo .xlsx válido.');
-                    console.error(err);
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        });
-
         function checkGenerateButton() {
             if (workbookData) {
                 btnGenerate.disabled = false;
@@ -240,7 +221,6 @@
             }
         }
 
-        // Converter letra da coluna (ex: A, B, Z) para índice numérico (0-based)
         function colLetterToIndex(letter) {
             let column = 0;
             letter = letter.toUpperCase();
@@ -253,11 +233,10 @@
         // Gerar planilha preenchida
         btnGenerate.addEventListener('click', () => {
             if (!workbookData) {
-                alert('Por favor, carregue a planilha modelo primeiro.');
+                alert('Aguarde o carregamento do modelo do GitHub.');
                 return;
             }
 
-            // Pegar dados da tabela
             const rows = staffTbody.querySelectorAll('tr');
             const staffList = [];
             rows.forEach(tr => {
@@ -274,28 +253,20 @@
             }
 
             try {
-                // Clonar workbook para não corromper o original em memória
-                // Usamos XLSX.write / read para fazer um clone seguro
                 const wbout = XLSX.write(workbookData, { bookType: 'xlsx', type: 'array' });
                 const workBookClone = XLSX.read(wbout, { type: 'array' });
 
-                // Pegar a primeira aba da planilha
                 const firstSheetName = workBookClone.SheetNames[0];
                 const worksheet = workBookClone.Sheets[firstSheetName];
 
                 const startRow = parseInt(startRowInput.value) || 8;
                 const nameColStr = nameColInput.value.trim() || 'B';
                 const nameColIdx = colLetterToIndex(nameColStr);
-                
-                // Coluna de detalhe/frequência (vamos colocar na coluna seguinte por padrão, ex: C ou D)
-                // Se a coluna de nome for B, podemos colocar na C ou em outra coluna se preferir
                 const detailColIdx = nameColIdx + 1; 
 
-                // Preencher dados linha por linha
                 staffList.forEach((staff, index) => {
                     const currentRow = startRow + index;
                     
-                    // Célula do Nome
                     const nameCellRef = XLSX.utils.encode_cell({ r: currentRow - 1, c: nameColIdx });
                     if (!worksheet[nameCellRef]) {
                         worksheet[nameCellRef] = { t: 's', v: '' };
@@ -303,7 +274,6 @@
                     worksheet[nameCellRef].v = staff.name;
                     worksheet[nameCellRef].t = 's';
 
-                    // Célula de Frequência/Detalhe (se houver preenchimento)
                     if (staff.detail) {
                         const detailCellRef = XLSX.utils.encode_cell({ r: currentRow - 1, c: detailColIdx });
                         if (!worksheet[detailCellRef]) {
@@ -314,11 +284,7 @@
                     }
                 });
 
-                // Atualizar o intervalo da planilha (!ref) se necessário para garantir que abranja as novas linhas
-                // O SheetJS gerencia bem se já houver bounds definidos
-
-                // Salvar o arquivo
-                const outputFileName = `Resumo_Ponto_Preenchido_${loadedFileName}`;
+                const outputFileName = `Resumo_Ponto_Preenchido.xlsx`;
                 XLSX.writeFile(workBookClone, outputFileName);
 
             } catch (err) {
@@ -327,8 +293,9 @@
             }
         });
 
-        // Inicializar tabela ao carregar
+        // Inicializar
         initTable();
+        loadModelFromGitHub();
     </script>
 </body>
 </html>
