@@ -22,7 +22,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-wide">Gerador de Resumo de Ponto</h1>
-                    <p class="text-xs text-emerald-100">Controle de frequência por ciclo (10 a 10) com calendário individual</p>
+                    <p class="text-xs text-emerald-100">Controle de frequência por ciclo (10 a 10) com legendas oficiais</p>
                 </div>
             </div>
             <div id="model-badge" class="mt-3 md:mt-0 text-xs bg-emerald-800/60 px-3 py-1.5 rounded-full border border-emerald-600">
@@ -57,7 +57,7 @@
                     <span>Coluna do Nome: <input type="text" id="name-col" value="B" class="w-14 border border-slate-300 rounded px-2 py-1 text-center uppercase font-bold bg-white ml-1"></span>
                 </div>
                 <div class="text-slate-500 italic">
-                    <i class="fa-solid fa-circle-info mr-1 text-emerald-600"></i> Clique no campo de dias de cada servidor para abrir o calendário individual.
+                    <i class="fa-solid fa-circle-info mr-1 text-emerald-600"></i> Clique no calendário de cada servidor para lançar as ocorrências.
                 </div>
             </div>
         </section>
@@ -85,7 +85,7 @@
                         <tr>
                             <th class="p-3 w-12 text-center">#</th>
                             <th class="p-3 min-w-[250px]">Nome Completo do Servidor</th>
-                            <th class="p-3 w-64 text-center">Calendário de Frequência (10 a 10)</th>
+                            <th class="p-3 w-64 text-center">Resumo do Ciclo (10 a 10)</th>
                             <th class="p-3 w-16 text-center">Ação</th>
                         </tr>
                     </thead>
@@ -110,40 +110,50 @@
 
     </main>
 
-    <!-- MODAL DO CALENDÁRIO INDIVIDUAL -->
+    <!-- MODAL DO CALENDÁRIO COM LEGENDA COMPLETA -->
     <div id="calendar-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in duration-200">
-            <div class="bg-emerald-700 text-white px-6 py-4 flex items-center justify-between">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+            <div class="bg-emerald-700 text-white px-6 py-4 flex items-center justify-between shrink-0">
                 <div>
                     <h3 id="modal-staff-name" class="font-bold text-base">Apuração de Ponto</h3>
-                    <p class="text-xs text-emerald-100">Clique nos dias para alternar entre Trabalhado (P), Falta (F) ou Fim de Semana/Folga (-)</p>
+                    <p class="text-xs text-emerald-100">Selecione uma sigla abaixo e clique nos dias do ciclo para aplicar</p>
                 </div>
                 <button type="button" id="modal-close" class="text-white/80 hover:text-white text-lg p-1.5 rounded-lg transition">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="p-6 space-y-4">
-                <div class="flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
-                    <div class="flex items-center space-x-3">
-                        <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block mr-1"></span> Trabalhado (P)</span>
-                        <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-red-500 inline-block mr-1"></span> Falta (F)</span>
-                        <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-slate-300 inline-block mr-1"></span> Fim de Semana (-)</span>
-                    </div>
-                    <div class="font-bold text-slate-700">
-                        Total de Faltas: <span id="modal-faltas-count" class="text-red-600 text-sm">0</span>
+            <div class="p-6 overflow-y-auto space-y-4 flex-grow">
+                <!-- Seletor de Siglas Ativas -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">1. Escolha a Ocorrência/Sigla para aplicar:</label>
+                    <div id="sigla-selector" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                        <!-- Preenchido via JS -->
                     </div>
                 </div>
 
+                <hr class="border-slate-200">
+
                 <!-- Grid de Dias do Ciclo -->
-                <div id="calendar-grid" class="grid grid-cols-7 gap-2 max-h-[320px] overflow-y-auto p-2 border border-slate-200 rounded-lg bg-slate-50/50">
-                    <!-- Preenchido via JS -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">2. Clique nos dias para marcar com a sigla selecionada:</label>
+                        <span class="text-xs text-slate-500 font-medium">Sigla ativa: <strong id="active-sigla-badge" class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">P - Presença</strong></span>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 sm:grid-cols-10 gap-2 p-3 border border-slate-200 rounded-xl bg-slate-50">
+                        <!-- Preenchido via JS -->
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-slate-100 px-6 py-3.5 flex justify-end space-x-3 border-t border-slate-200">
-                <button type="button" id="modal-cancel" class="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg transition">Cancelar</button>
-                <button type="button" id="modal-save" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow transition">Salvar Frequência</button>
+            <div class="bg-slate-100 px-6 py-3.5 flex justify-between items-center border-t border-slate-200 shrink-0">
+                <div class="text-xs text-slate-600">
+                    Resumo: <span id="modal-summary-text" class="font-bold text-slate-800">0 dias trabalhados</span>
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" id="modal-cancel" class="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg transition">Cancelar</button>
+                    <button type="button" id="modal-save" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow transition">Salvar Frequência</button>
+                </div>
             </div>
         </div>
     </div>
@@ -157,7 +167,27 @@
     <script>
         let workbookData = null;
         const modelFileName = "RESUMO DE FREQÜÊNCIA - AGO SET.xlsx";
-        let activeRowElement = null; // Linha da tabela sendo editada no modal
+        let activeRowElement = null;
+        let selectedSigla = 'P'; // Sigla padrão selecionada
+
+        // Definição de todas as legendas oficiais
+        const legendas = [
+            { code: 'P', label: 'Presença', color: 'bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200' },
+            { code: 'F', label: 'Falta', color: 'bg-red-100 text-red-800 border-red-300 hover:bg-red-200' },
+            { code: 'FJ', label: 'Falta Justificada', color: 'bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200' },
+            { code: 'RCH', label: 'Redução Carga Horária', color: 'bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200' },
+            { code: 'LPT', label: 'Licença Paternidade', color: 'bg-indigo-100 text-indigo-800 border-indigo-300 hover:bg-indigo-200' },
+            { code: 'LM', label: 'Licença Maternidade', color: 'bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-200' },
+            { code: 'L', label: 'Luto', color: 'bg-slate-200 text-slate-800 border-slate-400 hover:bg-slate-300' },
+            { code: 'R', label: 'Recesso', color: 'bg-teal-100 text-teal-800 border-teal-300 hover:bg-teal-200' },
+            { code: 'FE', label: 'Férias', color: 'bg-cyan-100 text-cyan-800 border-cyan-300 hover:bg-cyan-200' },
+            { code: 'FR', label: 'Feriado', color: 'bg-rose-100 text-rose-800 border-rose-300 hover:bg-rose-200' },
+            { code: 'LS', label: 'Licença Saúde', color: 'bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200' },
+            { code: 'PF', label: 'Ponto Facultativo', color: 'bg-sky-100 text-sky-800 border-sky-300 hover:bg-sky-200' },
+            { code: 'LR', label: 'Licença S/ Remuneração', color: 'bg-pink-100 text-pink-800 border-pink-300 hover:bg-pink-200' },
+            { code: 'LP', label: 'Licença Prêmio', color: 'bg-violet-100 text-violet-800 border-violet-300 hover:bg-violet-200' },
+            { code: '-', label: 'Fim de Semana / Folga', color: 'bg-slate-100 text-slate-500 border-slate-300 hover:bg-slate-200' }
+        ];
 
         const modelBadge = document.getElementById('model-badge');
         const staffTbody = document.getElementById('staff-tbody');
@@ -167,16 +197,16 @@
         const cycleStartInput = document.getElementById('cycle-start');
         const cycleEndInput = document.getElementById('cycle-end');
         
-        // Modal elements
         const calendarModal = document.getElementById('calendar-modal');
         const modalStaffName = document.getElementById('modal-staff-name');
         const calendarGrid = document.getElementById('calendar-grid');
-        const modalFaltasCount = document.getElementById('modal-faltas-count');
+        const siglaSelector = document.getElementById('sigla-selector');
+        const activeSiglaBadge = document.getElementById('active-sigla-badge');
+        const modalSummaryText = document.getElementById('modal-summary-text');
         const modalClose = document.getElementById('modal-close');
         const modalCancel = document.getElementById('modal-cancel');
         const modalSave = document.getElementById('modal-save');
 
-        // Carregar modelo do GitHub
         async function loadModelFromGitHub() {
             try {
                 const response = await fetch(modelFileName);
@@ -194,6 +224,23 @@
             }
         }
 
+        function initSiglaSelector() {
+            siglaSelector.innerHTML = '';
+            legendas.forEach(leg => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `p-2 rounded-lg border text-xs font-bold transition flex flex-col items-center justify-center ${leg.code === selectedSigla ? 'ring-2 ring-emerald-600 ' + leg.color : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`;
+                btn.innerHTML = `<span class="text-sm font-black">${leg.code}</span><span class="text-[9px] font-normal truncate max-w-full">${leg.label}</span>`;
+                
+                btn.addEventListener('click', () => {
+                    selectedSigla = leg.code;
+                    activeSiglaBadge.textContent = `${leg.code} - ${leg.label}`;
+                    initSiglaSelector(); // Atualizar bordas selecionadas
+                });
+                siglaSelector.appendChild(btn);
+            });
+        }
+
         function initTable() {
             staffTbody.innerHTML = '';
             for (let i = 0; i < 5; i++) {
@@ -208,7 +255,6 @@
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-slate-50/80 transition';
             
-            // Dados padrão de frequência (array de estados por dia: 'P', 'F', '-')
             const defaultData = attendanceData || generateDefaultCycleDays();
 
             tr.innerHTML = `
@@ -218,7 +264,7 @@
                 </td>
                 <td class="p-2 text-center">
                     <button type="button" class="btn-open-cal w-full bg-slate-100 hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 text-slate-700 text-xs font-medium py-1.5 px-3 rounded-lg transition flex items-center justify-between">
-                        <span class="cal-summary truncate">0 Faltas / Ciclo Completo</span>
+                        <span class="cal-summary truncate">Presenças e Ocorrências</span>
                         <i class="fa-solid fa-calendar-days text-emerald-600 ml-2"></i>
                     </button>
                     <input type="hidden" class="staff-attendance-json" value='${JSON.stringify(defaultData)}'>
@@ -230,11 +276,7 @@
                 </td>
             `;
 
-            // Evento para abrir o calendário
-            tr.querySelector('.btn-open-cal').addEventListener('click', () => {
-                openCalendarModal(tr);
-            });
-
+            tr.querySelector('.btn-open-cal').addEventListener('click', () => openCalendarModal(tr));
             tr.querySelector('.btn-del').addEventListener('click', () => {
                 if (staffTbody.rows.length > 1) {
                     tr.remove();
@@ -249,7 +291,6 @@
             updateRowSummary(tr);
         }
 
-        // Gerar dias do ciclo (10 a 10)
         function getCycleDates() {
             const startDate = new Date(cycleStartInput.value + 'T00:00:00');
             const endDate = new Date(cycleEndInput.value + 'T00:00:00');
@@ -267,7 +308,6 @@
             const dates = getCycleDates();
             return dates.map(d => {
                 const dayOfWeek = d.getDay();
-                // 0 = Domingo, 6 = Sábado -> padrão '-' (fim de semana), senão 'P' (presença)
                 const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
                 return {
                     date: d.toISOString().split('T')[0],
@@ -276,7 +316,6 @@
             });
         }
 
-        // Abrir Modal do Calendário
         function openCalendarModal(tr) {
             activeRowElement = tr;
             const nameInput = tr.querySelector('.staff-name').value.trim();
@@ -285,79 +324,64 @@
             const hiddenInput = tr.querySelector('.staff-attendance-json');
             let currentDays = JSON.parse(hiddenInput.value);
 
-            // Garantir que se o período mudou, recria o array
             const cycleDates = getCycleDates();
             if (currentDays.length !== cycleDates.length) {
                 currentDays = generateDefaultCycleDays();
             }
 
+            initSiglaSelector();
             renderCalendarGrid(currentDays);
             calendarModal.classList.remove('hidden');
         }
 
         function renderCalendarGrid(daysArray) {
             calendarGrid.innerHTML = '';
-            let faltasCount = 0;
 
-            daysArray.forEach((item, index) => {
+            daysArray.forEach((item) => {
                 const dateObj = new Date(item.date + 'T00:00:00');
                 const dayNum = dateObj.getDate();
                 const monthNum = dateObj.getMonth() + 1;
                 const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
                 const weekDayName = weekDays[dateObj.getDay()];
 
-                if (item.status === 'F') faltasCount++;
-
                 const dayCard = document.createElement('div');
                 updateDayCardStyle(dayCard, item.status);
                 dayCard.innerHTML = `
-                    <div class="text-[10px] uppercase font-semibold text-slate-500">${weekDayName}</div>
-                    <div class="text-sm font-bold">${dayNum}/${monthNum}</div>
-                    <div class="text-[11px] font-bold mt-1 status-label">${getStatusLabel(item.status)}</div>
+                    <div class="text-[9px] uppercase font-semibold opacity-70">${weekDayName}</div>
+                    <div class="text-xs font-bold">${dayNum}/${monthNum}</div>
+                    <div class="text-xs font-black mt-1 status-code">${item.status}</div>
                 `;
 
                 dayCard.addEventListener('click', () => {
-                    // Alternar status: P -> F -> - -> P
-                    if (item.status === 'P') item.status = 'F';
-                    else if (item.status === 'F') item.status = '-';
-                    else item.status = 'P';
-
+                    item.status = selectedSigla;
                     updateDayCardStyle(dayCard, item.status);
-                    dayCard.querySelector('.status-label').textContent = getStatusLabel(item.status);
-                    
-                    // Recalcular faltas em tempo real
-                    let count = 0;
-                    calendarGrid.querySelectorAll('.status-label').forEach(el => {
-                        if (el.textContent === 'Falta') count++;
-                    });
-                    modalFaltasCount.textContent = count;
+                    dayCard.querySelector('.status-code').textContent = item.status;
+                    updateModalSummary(daysArray);
                 });
 
                 calendarGrid.appendChild(dayCard);
             });
 
-            modalFaltasCount.textContent = faltasCount;
+            updateModalSummary(daysArray);
             calendarGrid.dataset.days = JSON.stringify(daysArray);
         }
 
-        function getStatusLabel(status) {
-            if (status === 'P') return 'Trabalhou';
-            if (status === 'F') return 'Falta';
-            return 'Folga/FDS';
+        function updateModalSummary(daysArray) {
+            calendarGrid.dataset.days = JSON.stringify(daysArray);
+            const counts = {};
+            daysArray.forEach(d => {
+                counts[d.status] = (counts[d.status] || 0) + 1;
+            });
+            let summaryStr = Object.keys(counts).map(k => `${counts[k]} (${k})`).join(', ');
+            modalSummaryText.textContent = summaryStr;
         }
 
         function updateDayCardStyle(element, status) {
-            element.className = "p-2 rounded-lg border text-center cursor-pointer transition flex flex-col items-center justify-center select-none ";
-            if (status === 'P') {
-                element.className += "bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100";
-            } else if (status === 'F') {
-                element.className += "bg-red-50 border-red-300 text-red-800 hover:bg-red-100 font-bold";
-            } else {
-                element.className += "bg-slate-100 border-slate-200 text-slate-400 hover:bg-slate-200";
-            }
+            const found = legendas.find(l => l.code === status);
+            const colorClass = found ? found.color : 'bg-slate-100 text-slate-800 border-slate-300';
+            element.className = `p-2 rounded-lg border text-center cursor-pointer transition flex flex-col items-center justify-center select-none shadow-sm ${colorClass}`;
         }
 
-        // Fechar Modal
         function closeCalendar() {
             calendarModal.classList.add('hidden');
             activeRowElement = null;
@@ -366,11 +390,9 @@
         modalClose.addEventListener('click', closeCalendar);
         modalCancel.addEventListener('click', closeCalendar);
 
-        // Salvar Modal
         modalSave.addEventListener('click', () => {
             if (!activeRowElement) return;
             const updatedDays = JSON.parse(calendarGrid.dataset.days);
-            
             activeRowElement.querySelector('.staff-attendance-json').value = JSON.stringify(updatedDays);
             updateRowSummary(activeRowElement);
             closeCalendar();
@@ -378,11 +400,19 @@
 
         function updateRowSummary(tr) {
             const days = JSON.parse(tr.querySelector('.staff-attendance-json').value);
-            const faltas = days.filter(d => d.status === 'F').length;
-            const trabalhados = days.filter(d => d.status === 'P').length;
-
+            const counts = {};
+            days.forEach(d => {
+                counts[d.status] = (counts[d.status] || 0) + 1;
+            });
+            // Mostrar resumo principal (ex: Faltas, Férias, etc.)
+            let summaryList = [];
+            if (counts['F']) summaryList.push(`${counts['F']} Faltas`);
+            if (counts['FJ']) summaryList.push(`${counts['FJ']} F. Just.`);
+            if (counts['FE']) summaryList.push(`${counts['FE']} Férias`);
+            if (counts['LS']) summaryList.push(`${counts['LS']} Lic. Saúde`);
+            
             const summaryBtn = tr.querySelector('.cal-summary');
-            summaryBtn.textContent = `${faltas} Faltas | ${trabalhados} Dias Trab.`;
+            summaryBtn.textContent = summaryList.length > 0 ? summaryList.join(' | ') : `${counts['P'] || 0} Presenças / Ciclo Normal`;
         }
 
         function updateRowNumbers() {
@@ -392,12 +422,7 @@
         }
 
         btnAddRow.addEventListener('click', () => addStaffRow());
-
-        btnClear.addEventListener('click', () => {
-            if (confirm('Deseja limpar todos os servidores?')) {
-                initTable();
-            }
-        });
+        btnClear.addEventListener('click', () => { if (confirm('Deseja limpar todos os servidores?')) initTable(); });
 
         function checkGenerateButton() {
             if (workbookData) {
@@ -450,7 +475,7 @@
                 const startRow = parseInt(startRowInput.value) || 8;
                 const nameColStr = nameColInput.value.trim() || 'B';
                 const nameColIdx = colLetterToIndex(nameColStr);
-                const detailColIdx = nameColIdx + 1; // Coluna seguinte para resumo de faltas/frequência
+                const detailColIdx = nameColIdx + 1; 
 
                 staffList.forEach((staff, index) => {
                     const currentRow = startRow + index;
@@ -461,9 +486,18 @@
                     worksheet[nameCellRef].v = staff.name;
                     worksheet[nameCellRef].t = 's';
 
-                    // Calcular resumo para a planilha (ex: total de faltas ou string de dias)
-                    const faltas = staff.attendance.filter(d => d.status === 'F').length;
-                    const detailText = `${faltas} Falta(s)`;
+                    // Gerar resumo detalhado das ocorrências para a planilha
+                    const counts = {};
+                    staff.attendance.forEach(d => {
+                        counts[d.status] = (counts[d.status] || 0) + 1;
+                    });
+                    
+                    let parts = [];
+                    if (counts['F']) parts.push(`${counts['F']}F`);
+                    if (counts['FJ']) parts.push(`${counts['FJ']}FJ`);
+                    if (counts['FE']) parts.push(`${counts['FE']}FE`);
+                    if (counts['LS']) parts.push(`${counts['LS']}LS`);
+                    const detailText = parts.length > 0 ? parts.join(', ') : 'Normal';
 
                     const detailCellRef = XLSX.utils.encode_cell({ r: currentRow - 1, c: detailColIdx });
                     if (!worksheet[detailCellRef]) worksheet[detailCellRef] = { t: 's', v: '' };
@@ -471,7 +505,7 @@
                     worksheet[detailCellRef].t = 's';
                 });
 
-                XLSX.writeFile(workBookClone, `Resumo_Ponto_Ciclo_Preenchido.xlsx`);
+                XLSX.writeFile(workBookClone, `Resumo_Ponto_Oficial_Preenchido.xlsx`);
 
             } catch (err) {
                 alert('Erro ao gerar a planilha.');
